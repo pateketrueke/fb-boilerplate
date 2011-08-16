@@ -1,4 +1,5 @@
-Facebook startup template.
+Facebook startup template
+=========================
 
 - It's based on popular html5-boilerplate.
 - It has some useful functions, but not enough yet.
