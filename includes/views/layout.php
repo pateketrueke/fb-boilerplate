@@ -12,7 +12,7 @@
        More info: h5bp.com/b/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title><?= $title; ?></title>
+  <title><?php echo $title; ?></title>
   <meta name="description" content="">
   <meta name="author" content="">
 
@@ -24,7 +24,7 @@
   <!-- CSS: implied media=all -->
   <!-- CSS concatenated and minified via ant build script-->
   <?php foreach ($style as $css): ?>
-  <link rel="stylesheet" href="<?= $css; ?>?_<?= filemtime(ROOT."/$css"); ?>">
+  <link rel="stylesheet" href="<?php echo $css; ?>?_<?php echo filemtime(ROOT."/$css"); ?>">
   <?php endforeach; ?>
   <!-- end CSS-->
 
@@ -42,21 +42,21 @@
   
   <div id="conf"
     data-extra="<?php /* additional data */ ?>"
-    data-appid="<?= FACEBOOK_APP_ID; ?>"
-    data-canvas="<?= FACEBOOK_CANVAS_URL; ?>"
-    data-pic="<?= CANVAS_PICTURE; ?>"
-    data-me="<?= $me['link']; ?>"
+    data-appid="<?php echo FACEBOOK_APP_ID; ?>"
+    data-canvas="<?php echo FACEBOOK_CANVAS_URL; ?>"
+    data-pic="<?php echo CANVAS_PICTURE; ?>"
+    data-me="<?php echo $me['link']; ?>"
   ></div>
 
   <div id="container">
     <header>
-      <?= $header; ?>
+      <?php echo $header; ?>
     </header>
     <div id="main" role="main">
-      <?= $yield; ?>
+      <?php echo $yield; ?>
     </div>
     <footer>
-      <?= $footer; ?>
+      <?php echo $footer; ?>
     </footer>
   </div> <!--! end of #container -->
 
@@ -71,14 +71,14 @@
   
   <!-- scripts concatenated and minified via ant build script-->
   <?php foreach($script as $js): ?>
-  <script defer src="<?= $js; ?>"></script>
+  <script defer src="<?php echo $js; ?>"></script>
   <?php endforeach; ?>
   <!-- end scripts-->
 
 	
   <!-- Change UA-XXXXX-X to be your site's ID -->
   <script>
-    window._gaq = [['_setAccount','<?= FACEBOOK_UA; ?>'],['_trackPageview'],['_trackPageLoadTime']];
+    window._gaq = [['_setAccount','<?php echo FACEBOOK_UA; ?>'],['_trackPageview'],['_trackPageLoadTime']];
     Modernizr.load({
       load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
     });

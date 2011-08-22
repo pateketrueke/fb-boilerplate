@@ -1,8 +1,8 @@
 
 <?php if ($me): ?>
 
-  <img src="//graph.facebook.com/<?= $me['id']; ?>/picture" alt="<?= $me['name']; ?>"/>
-  <h1>Hello <?= $me['name']; ?></h1>
+  <img src="//graph.facebook.com/<?php echo $me['id']; ?>/picture" alt="<?php echo $me['name']; ?>"/>
+  <h1>Hello <?php echo $me['name']; ?></h1>
   
   <a href="#invite" id="invite"
     data-action="invite"
@@ -16,8 +16,8 @@
     
   <a href="#publish" id="publish"
     data-action="publish"
-    data-name="Share by <?= $me['name']; ?>"
-    data-url="<?= FACEBOOK_CANVAS_URL; ?>"
+    data-name="Share by <?php echo $me['name']; ?>"
+    data-url="<?php echo FACEBOOK_CANVAS_URL; ?>"
     data-image="http://humanstxt.org/img/HTML5-boilerplate.png"
     data-title="Publish to stream"
     data-description="Try out our new Boilerplate based FacebookApp"
