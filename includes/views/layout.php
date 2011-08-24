@@ -24,7 +24,7 @@
   <!-- CSS: implied media=all -->
   <!-- CSS concatenated and minified via ant build script-->
   <?php foreach ($style as $css): ?>
-  <link rel="stylesheet" href="<?php echo $css; ?>?_<?php echo filemtime(ROOT."/$css"); ?>">
+  <link rel="stylesheet" href="<?php echo $css; ?>?_<?php echo filemtime(BASE."/$css"); ?>">
   <?php endforeach; ?>
   <!-- end CSS-->
 
@@ -39,7 +39,7 @@
 <body>
 
   <div id="fb-root"></div>
-  
+
   <div id="conf"
     data-extra="<?php /* additional data */ ?>"
     data-appid="<?php echo FACEBOOK_APP_ID; ?>"
@@ -68,14 +68,14 @@
   <script>window.jQuery || document.write('<script src="assets/js/libs/jquery-1.6.2.min.js"><\/script>')</script>
 
   <script type="text/javascript" src="//connect.facebook.net/es_LA/all.js"></script>
-  
+
   <!-- scripts concatenated and minified via ant build script-->
   <?php foreach($script as $js): ?>
   <script defer src="<?php echo $js; ?>"></script>
   <?php endforeach; ?>
   <!-- end scripts-->
 
-	
+
   <!-- Change UA-XXXXX-X to be your site's ID -->
   <script>
     window._gaq = [['_setAccount','<?php echo FACEBOOK_UA; ?>'],['_trackPageview'],['_trackPageLoadTime']];
@@ -91,6 +91,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
     <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
   <![endif]-->
-  
+
 </body>
 </html>

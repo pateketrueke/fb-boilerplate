@@ -3,16 +3,16 @@
 // bootstrap
 set_time_limit(0);
 
-define('ROOT', __DIR__);
+define('BASE', __DIR__);
 
 
 // initialize
-require ROOT.'/library/facebook.php';
-require ROOT.'/library/helpers.php';
-require ROOT.'/library/static.php';
+require BASE.'/library/facebook.php';
+require BASE.'/library/helpers.php';
+require BASE.'/library/static.php';
 
-require ROOT.'/includes/config.php';
-require ROOT.'/includes/script.php';
+require BASE.'/includes/config.php';
+require BASE.'/includes/script.php';
 
 
 
@@ -29,7 +29,7 @@ $vars['title']  = 'FacebookApp';
 $vars['header'] = 'FacebookApp Fanpage';
 $vars['footer'] = '&copy; FacebookApp Credits ' . date('Y');
 
-$vars['yield']  = partial('main.php', compact('me'));
+$vars['yield']  = partial_view('main.php', compact('me'));
+$vars['me'] = $me;
 
-render('layout.php', $vars);
-
+render_view('layout.php', $vars);
