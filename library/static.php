@@ -4,13 +4,13 @@ class fb
 {
   private static $me = NULL;
   private static $self = NULL;
-  
+
   private static $login_options = array(
                     'canvas' => 1,
                     'fbconnect' => 0,
-                    'req_perms' => 'email,publish_stream',
+                    'scope' => 'email,publish_stream',
                   );
-  
+
   // handle dynamic calls
   final public static function __callStatic($method, $arguments)
   {
@@ -18,15 +18,15 @@ class fb
               '/[^a-z0-9]|\s+/i' => ' ',
               '/\s([a-z])/ie' => 'ucfirst("\\1")',
             );
-    
+
     $method = preg_replace(array_keys($repl), $repl, $method);
-    
+
     if (method_exists(fb::instance(), $method))
     {
       return call_user_func_array(array(fb::instance(), $method), $arguments);
     }
   }
-  
+
   // our Facebook object
   final public static function instance()
   {
@@ -40,17 +40,17 @@ class fb
     }
     return fb::$self;
   }
-  
+
   // initialize everything
   final public static function init()
   {
     $test = headers_list();
-    
+
     if (array_key_exists('X-Facebook-User', $test))
     {
       fb::$me = (array) json_decode($test['X-Facebook-User']);
     }
-    
+
     if ( ! fb::$me)
     {
       if ( ! fb::get_user())
@@ -67,7 +67,7 @@ class fb
       }
     }
   }
-  
+
   // FQL queries
   final public static function query($fql, $callback = '')
   {
@@ -77,7 +77,7 @@ class fb
       'query' => $fql,
     ));
   }
-  
+
   // on request_ids handler
   final public static function request_ids(Closure $lambda)
   {
@@ -90,25 +90,25 @@ class fb
       }
     }
   }
-  
+
   // set canvas
   final public static function canvas($bool)
   {
     fb::$login_options['canvas'] = (int) $bool;
   }
-  
+
   // set fbconnect
   final public static function fbconnect($bool)
   {
     fb::$login_options['fbconnect'] = (int) $bool;
   }
-  
+
   // set permissions
   final public static function permissions($set)
   {
-    fb::$login_options['req_perms'] = join(',', array_filter(func_get_args()));
+    fb::$login_options['scope'] = join(',', array_filter(func_get_args()));
   }
-  
+
   // handle redirects
   final public static function redirect($url)
   {
@@ -122,17 +122,16 @@ class fb
     }
     exit;
   }
-  
+
   // our app use canvas?
   final public static function is_canvas()
   {
     return ! empty(fb::$login_options['canvas']);
   }
-  
+
   // about app user
   final public static function me()
   {
     return fb::$me;
   }
 }
-
