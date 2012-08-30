@@ -1,93 +1,137 @@
 <?php
-/**
- * Copyright 2011 Facebook, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
 
-require_once "base_facebook.php";
-
-/**
- * Extends the BaseFacebook class with the intent of using
- * PHP sessions to store user ids and access tokens.
- */
-class Facebook extends BaseFacebook
+class fb
 {
-  /**
-   * Identical to the parent constructor, except that
-   * we start a PHP session to store the user ID and
-   * access token if during the course of execution
-   * we discover them.
-   *
-   * @param Array $config the application configuration.
-   * @see BaseFacebook::__construct in facebook.php
-   */
-  public function __construct($config) {
-    if (!session_id()) {
-      session_start();
-    }
-    parent::__construct($config);
-  }
+  public static $me = NULL;
 
-  protected static $kSupportedKeys =
-    array('state', 'code', 'access_token', 'user_id');
+  private static $self = NULL;
+  private static $login_options = array(
+                    'canvas' => 1,
+                    'fbconnect' => 0,
+                    'scope' => 'email,publish_stream',
+                  );
 
-  /**
-   * Provides the implementations of the inherited abstract
-   * methods.  The implementation uses PHP sessions to maintain
-   * a store for authorization codes, user ids, CSRF states, and
-   * access tokens.
-   */
-  protected function setPersistentData($key, $value) {
-    if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to setPersistentData.');
-      return;
-    }
+  // handle dynamic calls
+  final public static function __callStatic($method, $arguments)
+  {
+    static $repl = array(
+              '/[^a-z0-9]|\s+/i' => ' ',
+              '/\s([a-z])/ie' => 'ucfirst("\\1")',
+            );
 
-    $session_var_name = $this->constructSessionVariableName($key);
-    $_SESSION[$session_var_name] = $value;
-  }
+    $method = preg_replace(array_keys($repl), $repl, $method);
 
-  protected function getPersistentData($key, $default = false) {
-    if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to getPersistentData.');
-      return $default;
-    }
-
-    $session_var_name = $this->constructSessionVariableName($key);
-    return isset($_SESSION[$session_var_name]) ?
-      $_SESSION[$session_var_name] : $default;
-  }
-
-  protected function clearPersistentData($key) {
-    if (!in_array($key, self::$kSupportedKeys)) {
-      self::errorLog('Unsupported key passed to clearPersistentData.');
-      return;
-    }
-
-    $session_var_name = $this->constructSessionVariableName($key);
-    unset($_SESSION[$session_var_name]);
-  }
-
-  protected function clearAllPersistentData() {
-    foreach (self::$kSupportedKeys as $key) {
-      $this->clearPersistentData($key);
+    if (method_exists(fb::instance(), $method))
+    {
+      return call_user_func_array(array(fb::instance(), $method), $arguments);
     }
   }
 
-  protected function constructSessionVariableName($key) {
-    return implode('_', array('fb',
-                              $this->getAppId(),
-                              $key));
+  // our Facebook object
+  final public static function instance()
+  {
+    if (is_null(fb::$self))
+    {
+      fb::$self = new Facebook(array(
+        'appId' => FACEBOOK_APP_ID,
+        'secret' => FACEBOOK_SECRET,
+        'cookie' => TRUE,
+      ));
+    }
+    return fb::$self;
+  }
+
+  // initialize everything
+  final public static function init()
+  {
+    $test = headers_list();
+
+    if (array_key_exists('X-Facebook-User', $test))
+    {
+      fb::$me = (array) json_decode($test['X-Facebook-User']);
+    }
+
+    if ( ! fb::$me)
+    {
+      if ( ! fb::get_user())
+      {
+        fb::redirect(fb::get_login_url(fb::$login_options));
+      }
+      else
+      {
+        try {
+          fb::$me = fb::api('/me');
+        } catch (FacebookApiException $e) {
+          trigger_error(print_r($e));
+        }
+      }
+    }
+  }
+
+  // FQL queries
+  final public static function query($fql, $callback = '')
+  {
+    return fb::api(array(
+      'callback' => $callback,
+      'method' => 'fql.query',
+      'query' => $fql,
+    ));
+  }
+
+  // on request_ids handler
+  final public static function request_ids(Closure $lambda)
+  {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST')
+    {
+      if ( ! empty($_GET[$method]))
+      {
+        $ids = array_filter(explode(',', urldecode($_GET[$method])));
+        $ids && call_user_func_array($lambda, $ids);
+      }
+    }
+  }
+
+  // set canvas
+  final public static function canvas($bool)
+  {
+    fb::$login_options['canvas'] = (int) $bool;
+  }
+
+  // set fbconnect
+  final public static function fbconnect($bool)
+  {
+    fb::$login_options['fbconnect'] = (int) $bool;
+  }
+
+  // set permissions
+  final public static function permissions($set)
+  {
+    fb::$login_options['scope'] = join(',', array_filter(func_get_args()));
+  }
+
+  // handle redirects
+  final public static function redirect($url)
+  {
+    if (fb::is_canvas())
+    {
+      echo '<script type="text/javascript">top.location.href="', $url, '";</script>';
+    }
+    else
+    {
+      header("Location: $url");
+    }
+    exit;
+  }
+
+  // our app use canvas?
+  final public static function is_canvas()
+  {
+    return ! empty(fb::$login_options['canvas']);
+  }
+
+  // about app user
+  final public static function me()
+  {
+    return fb::$me;
   }
 }

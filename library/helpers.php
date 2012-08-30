@@ -1,29 +1,5 @@
 <?php
 
-
-// template render
-function render_view($file, array $vars = array())
-{
-  $inc_file = BASE."/includes/views/$file";
-  $vars && extract($vars);
-  require $inc_file;
-}
-
-// partial render
-function partial_view($file, array $vars = array())
-{
-  ob_start();
-
-  $inc_file = BASE."/includes/views/_/$file";
-
-  $vars && extract($vars);
-  require $inc_file;
-
-  $out = ob_get_clean();
-  return $out;
-}
-
-
 // our friends using this app
 function friends_using()
 {
@@ -47,3 +23,6 @@ function page_likes()
 
   return fb::query("SELECT $what FROM page WHERE page_id IN(SELECT page_id FROM page_fan WHERE uid=$uid)");
 }
+
+// about me
+function me() {}
