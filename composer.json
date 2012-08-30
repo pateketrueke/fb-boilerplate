@@ -1,0 +1,7 @@
+{
+  "require": {
+    "facebook/php-sdk": "dev-master",
+    "habanero/tailor": "dev-master",
+    "habanero/broil": "dev-master"
+  }
+}
