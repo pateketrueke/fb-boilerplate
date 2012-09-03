@@ -143,7 +143,22 @@ class app_controller {
 
   function get_scripts()
   {
-    //return $this->scripts;
+    $id  = '';
+    $tmp = array();
+    $out = $this->scripts['plain'];
+
+    foreach ($this->scripts['compiled'] as $file) {
+      $id   .= md5_file($file);
+      $tmp []= file_get_contents($file);
+    }
+
+    $hash = md5($id);
+    $js   = "$hash.js";
+    $old  = BASE."/public/js/$js";
+
+    file_put_contents($old, join("\n", $tmp));
+
+    return '<script src="' . path("/js/$js") . '">';
   }
 
   function get_vars()
