@@ -29,24 +29,33 @@ if ($match = Broil\Routing::run()) {
 
     if (class_exists($controller_klass, FALSE)) {
       if (in_array($method, get_class_methods($controller_klass))) {
-        $obj = new $controller_klass;
+        eval('class req_klass{function __call($m,$a){return call_user_func_array(array("Postman\\Request",$m),$a);}}');
+
         params($match['params']);
 
-        ob_start();
-        $obj->$method();
-        $tmp = ob_get_clean();
+        $app = new $controller_klass;
+        $app->request = new req_klass;
 
-        if ($tpl = $obj->layout) {
-          $vars = $obj->get_vars();
+        $obj = new Postman\Handle($app);
+        $out = new Postman\Response($obj->execute($method));
 
-          $vars['head'] = $obj->get_head();
-          $vars['styles'] = $obj->get_styles();
-          $vars['scripts'] = $obj->get_scripts();
+        if ($tpl = $app->layout) {
+          $vars = $app->get_vars();
 
-          $out  = render("layouts/$tpl", $vars);
+          $vars['head'] = $app->get_head();
+          $vars['styles'] = $app->get_styles();
+          $vars['scripts'] = $app->get_scripts();
+          $vars['body'] = $app->body ?: $out->response;
+
+          $out->response = render("layouts/$tpl", $vars);
         } else {
-          $out = $obj->body;
+          $out->response = $app->body ?: $out->response;
         }
+
+        $out->headers = $app->get_headers();
+        $out->status = $app->get_status();
+
+        echo $out;
       } else {
         raise("Method $controller_klass#$method missing in $controller_file");
       }
@@ -59,5 +68,3 @@ if ($match = Broil\Routing::run()) {
 } else {
   raise('No matching route', 404);
 }
-
-echo $out;
